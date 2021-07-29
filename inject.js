@@ -42,6 +42,10 @@ function wrap (fn) {
   }
 }
 
+function isFunction (f) {
+  return !!(f && f.constructor && f.call && f.apply)
+}
+
 module.exports = function inject (blobStore, blobPush, name, opts) {
   opts = opts || {}
   // sympathy controls whether you'll replicate
@@ -118,7 +122,9 @@ module.exports = function inject (blobStore, blobPush, name, opts) {
 
       if (wantCallbacks[data.id]) {
         while (wantCallbacks[data.id].length) {
-          wantCallbacks[data.id].shift()(null, true)
+          if (isFunction(wantCallbacks[data.id])) {
+            wantCallbacks[data.id].shift()(null, true)
+          }
         }
       }
     })
@@ -372,7 +378,9 @@ module.exports = function inject (blobStore, blobPush, name, opts) {
           if (err) return cb(err)
           if (size != null) {
             while (wantCallbacks[id].length) {
-              wantCallbacks[id].shift()(null, true)
+              if (isFunction(wantCallbacks[id])) {
+                wantCallbacks[id].shift()(null, true)
+              }
             }
             delete wantCallbacks[id]
           }
